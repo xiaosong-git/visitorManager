@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manage.dao.UserMapping">
+  <resultMap id="BaseResultMap" type="com.manage.model.User">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="orgId" jdbcType="BIGINT" property="orgId" />
+    <result column="relationNo" jdbcType="VARCHAR" property="relationNo" />
+    <result column="realName" jdbcType="VARCHAR" property="realName" />
+    <result column="niceName" jdbcType="VARCHAR" property="niceName" />
+    <result column="loginName" jdbcType="VARCHAR" property="loginName" />
+    <result column="idType" jdbcType="VARCHAR" property="idType" />
+    <result column="idNO" jdbcType="VARCHAR" property="idNO" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="createDate" jdbcType="VARCHAR" property="createDate" />
+    <result column="createTime" jdbcType="VARCHAR" property="createTime" />
+    <result column="province" jdbcType="VARCHAR" property="province" />
+    <result column="city" jdbcType="VARCHAR" property="city" />
+    <result column="area" jdbcType="VARCHAR" property="area" />
+    <result column="addr" jdbcType="VARCHAR" property="addr" />
+    <result column="isAuth" jdbcType="VARCHAR" property="isAuth" />
+    <result column="authDate" jdbcType="VARCHAR" property="authDate" />
+    <result column="authTime" jdbcType="VARCHAR" property="authTime" />
+    <result column="idFrontImgUrl" jdbcType="VARCHAR" property="idFrontImgUrl" />
+    <result column="idOppositeImgUrl" jdbcType="VARCHAR" property="idOppositeImgUrl" />
+    <result column="idHandleImgUrl" jdbcType="VARCHAR" property="idHandleImgUrl" />
+    <result column="bankCardImgUrl" jdbcType="VARCHAR" property="bankCardImgUrl" />
+    <result column="headImgUrl" jdbcType="VARCHAR" property="headImgUrl" />
+    <result column="workKey" jdbcType="VARCHAR" property="workKey" />
+    <result column="token" jdbcType="VARCHAR" property="token" />
+    <result column="isSetTransPwd" jdbcType="VARCHAR" property="isSetTransPwd" />
+    <result column="qrcodeUrl" jdbcType="VARCHAR" property="qrcodeUrl" />
+    <result column="companyId" jdbcType="BIGINT" property="companyId" />
+    <result column="role" jdbcType="VARCHAR" property="role" />
+    <result column="soleCode" jdbcType="VARCHAR" property="soleCode" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    id, orgId, relationNo, realName, niceName, loginName, idType, idNO, phone,
+    createDate, createTime, province, city, area, addr, isAuth, authDate, authTime, idFrontImgUrl, 
+    idOppositeImgUrl, idHandleImgUrl, bankCardImgUrl, headImgUrl, workKey, token, isSetTransPwd,
+    qrcodeUrl, companyId, role, soleCode
+  </sql>
+
+  <select id="selectByLoginName" parameterType="java.lang.String" resultType="com.manage.model.User">
+    select
+    <include refid="Base_Column_List" />
+    from tbl_user
+    where loginName = #{loginName,jdbcType=VARCHAR}
+  </select>
+
+  <select id="countUserByOrg" resultType="Long">
+    select ifnull(count(id),0) numUser from tbl_user where relationNo like concat((#{relationNo}),'%')
+    <if test="createDate != null and createDate.trim() != '' ">
+      and createDate=#{createDate}
+    </if>
+  </select>
+
+  <select id="findByPageLeft" resultType="com.manage.model.User">
+    select u.*,o.org_name orgName,item.item_text isAuthName,t.item_text userAccountStatusName,company.companyName companyName
+ 	from tbl_user u
+    left join t_org o on u.orgId=o.id
+    left join t_dict_item item on u.isAuth=item.item_code and item.dict_code='isAuth'
+    left join tbl_user_account uac on u.Id=uac.userId
+    left join t_dict_item t on t.item_code=uac.cstatus and t.dict_code='userAccountStatus'
+    left join tbl_company company on u.companyId = company.id
+    <trim prefix="where" prefixOverrides="and | or">
+      <if test="user.relationNo != null and user.relationNo.trim() != '' and user.relationNo.trim() !='1.'"> and o.RELATION_NO like concat((#{user.relationNo}),'%')</if>
+      <if test="user.companyName != null and user.companyName.trim() != ''"> and company.companyName like concat(concat('%',#{user.companyName}),'%')</if>
+      <if test="user.orgName != null and user.orgName.trim() != ''"> and o.org_name like concat(concat('%',#{user.orgName}),'%')</if>
+      <if test="user.phone != null and user.phone.trim() !='' "> and u.phone = #{user.phone}</if>
+      <if test="user.loginName != null and user.loginName.trim() != ''"> and u.loginName like concat(concat('%',#{user.loginName}),'%')</if>
+      <if test="user.realName != null and user.realName.trim() != ''"> and u.realName like concat(concat('%',#{user.realName}),'%')</if>
+    </trim>
+  </select>
+
+  <select id="findByIdLeft" resultType="com.manage.model.User" parameterType="Long">
+    select u.*,o.org_name orgName,item_text isAuthName,company.companyName companyName
+    from tbl_user u
+	 left join t_org o on u.orgId=o.id
+	 left join t_dict_item item on u.isAuth=item.item_code and item.dict_code='isAuth'
+	 left join tbl_user_account uac on u.Id=uac.userId
+	 left join tbl_company company on u.companyId = company.id
+	 where u.id=#{userId}
+  </select>
+
+  <!--统计机构下的用户数 LZ-->
+  <select id="countUserNumByOrgId" resultType="java.lang.Long">
+    select ifnull(count(id),0)
+    from tbl_user
+    where orgId = #{orgId}
+  </select>
+
+  <select id="findById" resultType="com.manage.model.User" parameterType="java.lang.Long">
+    select *
+    from tbl_user
+    where id = #{id}
+  </select>
+
+  <update id="updatePayPwd">
+    update tbl_user set openId=#{openId} where id=#{id}
+  </update>
+
+  <select id="findByPhone" resultType="com.manage.model.User" parameterType="String">
+    select *
+    from tbl_user
+    where phone = #{phone}
+  </select>
+
+  <select id="findUserIsAudit" resultType="com.manage.model.User">
+    select user.id,user.realName,user.loginName,user.phone,org.org_name orgName
+     	from tbl_user user
+	 	left join t_org org on user.orgId=org.id
+    left join tbl_company company on user.companyId = company.id
+    <trim prefix="where" prefixOverrides="and | or">
+      AND user.isAuth="N"
+      <if test="companyName != null and companyName.trim() != ''"> and company.companyName like concat(concat('%',#{companyName}),'%')</if>
+      <if test="org_name != null and org_name.trim() != ''"> and org.org_name like concat(concat('%',#{org_name}),'%')</if>
+      <if test="phone != null and phone.trim() !='' "> and user.phone = #{phone}</if>
+      <if test="loginName != null and loginName.trim() != ''"> and user.loginName like concat(concat('%',#{loginName}),'%')</if>
+      <if test="realName != null and realName.trim() != ''"> and user.realName like concat(concat('%',#{realName}),'%')</if>
+    </trim>
+  </select>
+
+  <update id="updateSuccess">
+    update tbl_user set isAuth=#{isAuth},authDate=#{authDate},authTime=#{authTime} where id=#{id}
+  </update>
+
+  <update id="updateFail">
+    update tbl_user set isAuth=#{isAuth},failReason=#{failReason},authDate=#{authDate},authTime=#{authTime} where id=#{id}
+  </update>
+
+  <update id="updateIdNoByUserId">
+    update tbl_user set idNO=null where id=#{id}
+  </update>
+
+  <select id="findDetailById" resultType="com.manage.model.User" parameterType="java.lang.Long">
+    select u.*,o.org_name orgName,item_text isAuthName from tbl_user u
+	 left join t_org o on u.orgId=o.id
+	 left join t_dict_item item on u.isAuth=item.item_code and item.dict_code='isAuth'
+	 left join tbl_user_account uac on u.id=uac.userId
+	 where 1=1 and u.id=#{id}
+  </select>
+
+  <update id="updateInfo">
+    update tbl_user set idNO=#{user.idNO},realName=#{user.realName},idType=#{user.idType},isAuth=#{user.isAuth},authDate=#{user.authDate},authTime=#{user.authTime} where id=#{user.id}
+  </update>
+
+  <update id="updateIdFrontImgUrl">
+    update tbl_user set idFrontImgUrl=#{idFrontImgUrl} where id=#{id}
+  </update>
+
+  <update id="updateIdOppositeImgUrl">
+    update tbl_user set idOppositeImgUrl=#{idOppositeImgUrl} where id=#{id}
+  </update>
+
+  <update id="updateIdHandleImgUrl">
+    update tbl_user set idHandleImgUrl=#{idHandleImgUrl} where id=#{id}
+  </update>
+
+  <update id="updateBankCardImgUrl">
+    update tbl_user set bankCardImgUrl=#{bankCardImgUrl} where id=#{id}
+  </update>
+
+  <update id="updatePhone">
+    update tbl_user set phone=#{phone},loginName=#{phone} where id=#{id}
+  </update>
+
+  <update id="updateCompanyIdAndRole">
+    update tbl_user set companyId=#{companyId},role=#{role},orgId=#{orgId},relationNo=#{relationNo} where phone=#{phone}
+  </update>
+
+  <insert id="addUser" parameterType="com.manage.model.User">
+  <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+    SELECT LAST_INSERT_ID()
+  </selectKey>
+  insert into tbl_user (orgId,relationNo,realName,phone,createDate,createTime,token,loginName,isAuth,workKey,isSetTransPwd,companyId,role,soleCode)  values (#{user.orgId},#{user.relationNo},#{user.realName},#{user.phone},#{user.createDate},#{user.createTime},#{user.token},#{user.loginName},#{user.isAuth},#{user.workKey},#{user.isSetTransPwd},#{user.companyId},#{user.role},#{user.soleCode})
+  </insert>
+
+  <update id="updatePhoneByRole">
+    update tbl_user set role=#{role} where phone=#{phone}
+  </update>
+
+  <select id="findCompanyId" resultType="com.manage.model.User" parameterType="java.lang.Long">
+    select *
+    from tbl_user
+    where companyId=#{companyId}
+  </select>
+
+</mapper>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manage.dao.NewsMapping">
+  <resultMap id="BaseResultMap" type="com.manage.model.News">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="newsDate" jdbcType="VARCHAR" property="newsDate" />
+    <result column="newsName" jdbcType="VARCHAR" property="newsName" />
+    <result column="newsDetail" jdbcType="VARCHAR" property="newsDetail" />
+    <result column="newsImageUrl" jdbcType="VARCHAR" property="newsImageUrl" />
+    <result column="newsUrl" jdbcType="VARCHAR" property="newsUrl" />
+    <result column="newsStatus" jdbcType="VARCHAR" property="newsStatus" />
+  </resultMap>
+
+  <select id="findByPage" resultType="com.manage.model.News">
+    select news.*,item.item_text newsStatusName
+    from tbl_news news
+    left join t_dict_item item on item.dict_code='newsStatus' and item.item_code=news.newsStatus
+    <trim prefix="where" prefixOverrides="and | or">
+      <if test="newsName != null and newsName.trim() != ''">  and news.newsName like #{newsName}</if>
+    </trim>
+  </select>
+
+  <insert id="addNews">
+    insert into tbl_news (newsDate,newsName,newsDetail,newsImageUrl,newsUrl,newsStatus)  values (#{news.newsDate},#{news.newsName},#{news.newsDetail},#{news.newsImageUrl},#{news.newsUrl},#{news.newsStatus})
+  </insert>
+
+  <update id="updateNews">
+    UPDATE tbl_news set newsDate=#{news.newsDate},newsName=#{news.newsName},newsDetail=#{news.newsDetail},newsImageUrl=#{news.newsImageUrl},newsUrl=#{news.newsUrl},newsStatus=#{news.newsStatus} WHERE id=#{news.id}
+  </update>
+
+  <delete id="deleteNews" parameterType="java.util.List">
+    DELETE FROM tbl_news WHERE id in
+    <foreach collection="ids" item="id" separator="," open="(" close=")">
+      #{id}
+    </foreach>
+  </delete>
+
+  <update id="updateNewsStatus">
+    UPDATE tbl_news set newsStatus=#{news.newsStatus} WHERE id=#{news.id}
+  </update>
+
+</mapper>

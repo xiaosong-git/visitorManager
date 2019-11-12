@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manage.dao.NoticeMapping">
+    <resultMap id="BaseResultMap" type="com.manage.model.Notice">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="orgId" jdbcType="BIGINT" property="orgId"/>
+        <result column="relationNo" jdbcType="VARCHAR" property="relationNo"/>
+        <result column="noticeTitle" jdbcType="VARCHAR" property="noticeTitle"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="createDate" jdbcType="VARCHAR" property="createDate"/>
+        <result column="createTime" jdbcType="VARCHAR" property="createTime"/>
+        <result column="cstatus" jdbcType="VARCHAR" property="cstatus"/>
+    </resultMap>
+
+    <!--获取最新公告的Id-->
+    <select id="findMaxId" resultType="java.lang.Long">
+        select max(id)
+        from tbl_notice
+    </select>
+
+    <select id="findByIdMixAndMin" resultType="com.manage.model.Notice" parameterType="Long">
+        select t.id id,t.orgId orgId,t.relationNo relationNo,t.noticeTitle noticeTitle,t.content content,t.createDate createDate,t.createTime createTime,t.cstatus cstatus,o.org_name org_name,di.item_text item_text from tbl_notice t
+        left join t_org o on t.orgId = o.id
+        left join t_dict_item di on di.dict_code = 'notice_status' and t.cstatus = di.item_code
+        where 1 = 1 and t.id>#{orgNoticeMaxId}
+    </select>
+
+    <select id="findAllOrderBy" resultType="com.manage.model.Notice">
+        select * from tbl_notice ORDER BY createDate desc ,createTime desc
+    </select>
+
+    <select id="findByPager" resultType="com.manage.model.Notice">
+        select t.id id,t.orgId orgId,t.relationNo relationNo,t.noticeTitle noticeTitle,t.content content,t.createDate
+        createDate,t.createTime createTime,t.cstatus cstatus,o.org_name org_name,di.item_text item_text from
+        tbl_notice t
+        left join t_org o on t.orgId = o.id
+        left join t_dict_item di on di.dict_code = 'notice_status' and t.cstatus = di.item_code
+        <trim prefix="where" prefixOverrides="and | or">
+            <if test="noticeTitle != null and noticeTitle.trim() != ''"> and noticeTitle like '${noticeTitle}%'</if>
+            <if test="startDate != null and startDate.trim() != ''"> and t.createDate &gt;= #{startDate}</if>
+            <if test="endDate != null and endDate.trim() != ''"> and t.createDate &lt;= #{endDate}</if>
+        </trim>
+    </select>
+
+    <update id="updateById">
+        update tbl_notice
+        <trim prefix="set" suffixOverrides=",">
+            <if test="sysNotice.noticeTitle != null and sysNotice.noticeTitle.trim() != ''"> noticeTitle=#{sysNotice.noticeTitle},</if>
+            <if test="sysNotice.content != null and sysNotice.content.trim() != ''"> content=#{sysNotice.content},</if>
+            <if test="sysNotice.createDate != null and sysNotice.createDate.trim() != ''"> createDate=#{sysNotice.createDate},</if>
+            <if test="sysNotice.createTime != null and sysNotice.createTime.trim() != ''"> createTime=#{sysNotice.createTime},</if>
+            <if test="sysNotice.cstatus != null and sysNotice.cstatus.trim() != ''"> cstatus=#{sysNotice.cstatus},</if>
+        </trim>
+        where id=#{sysNotice.id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.util.List">
+        DELETE FROM tbl_notice WHERE id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="findById" resultType="com.manage.model.Notice">
+        select orgId,relationNo,noticeTitle,content,createDate,createTime,cstatus from tbl_notice where id = #{id}
+    </select>
+
+    <insert id="addNotice">
+        insert into tbl_notice (orgId,relationNo,noticeTitle,content,createDate,createTime,cstatus)  values (#{notice.orgId},#{notice.relationNo},#{notice.noticeTitle},#{notice.content},#{notice.createDate},#{notice.createTime},#{notice.cstatus})
+    </insert>
+
+</mapper>

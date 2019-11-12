@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manage.dao.VisitorRecordMapping">
+  <resultMap id="BaseResultMap" type="com.manage.model.VisitorRecord">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="visitDate" jdbcType="VARCHAR" property="visitDate" />
+    <result column="visitTime" jdbcType="VARCHAR" property="visitTime" />
+    <result column="userId" jdbcType="BIGINT" property="userId" />
+    <result column="visitorId" jdbcType="BIGINT" property="visitorId" />
+    <result column="reason" jdbcType="VARCHAR" property="reason" />
+    <result column="cstatus" jdbcType="VARCHAR" property="cstatus" />
+    <result column="dateType" jdbcType="VARCHAR" property="dateType" />
+    <result column="startDate" jdbcType="VARCHAR" property="startDate" />
+    <result column="endDate" jdbcType="VARCHAR" property="endDate" />
+    <result column="answerContent" jdbcType="VARCHAR" property="answerContent" />
+  </resultMap>
+
+  <select id="findByPage" resultType="com.manage.model.VisitorRecord">
+    SELECT
+    vr.*,
+    u.realName userName,
+    v.realName visitorName,
+    p2.companyName,
+    CONCAT_WS( " ", it1.scanDate, it1.scanTime ) indate,
+    it1.inorout,
+    CONCAT_WS( " ", it2.scanDate, it2.scanTime ) outdate,
+    it2.inorout2
+    FROM
+    tbl_visitor_record vr
+    LEFT JOIN tbl_user u ON vr.userId = u.id
+    LEFT JOIN tbl_user v ON vr.visitorId = v.id
+    LEFT JOIN tbl_company p2 ON vr.companyId = p2.id
+    LEFT JOIN (
+    SELECT
+    o.scanDate,
+    o.scanTime,
+    o.userName,
+    o.idCard,
+    o.inOrOut inorout,
+    r.id userId
+    FROM
+    tbl_in_out o
+    LEFT JOIN tbl_user r ON o.idCard = r.idNO
+    WHERE
+    o.inOrOut = 'in' and orgCode=#{orgCode} and userType='visitor' ORDER BY scanTime ASC
+    ) it1 ON vr.userId = it1.userId AND date_format( vr.startDate, '%Y-%m-%d' ) = date_format( it1.scanDate, '%Y-%m-%d' )
+    AND date_format( vr.endDate, '%Y-%m-%d' ) = date_format( it1.scanDate, '%Y-%m-%d' )
+    LEFT JOIN (
+    SELECT
+    o2.scanDate,
+    o2.scanTime,
+    o2.userName,
+    o2.idCard,
+    o2.inOrOut inorout2,
+    r2.id userId
+    FROM
+    tbl_in_out o2
+    LEFT JOIN tbl_user r2 ON o2.idCard = r2.idNO
+    WHERE
+    o2.inOrOut = 'out'and orgCode=#{orgCode} and userType='visitor' ORDER BY scanTime DESC
+    ) it2 ON vr.userId = it2.userId AND date_format( vr.startDate, '%Y-%m-%d' ) = date_format( it2.scanDate, '%Y-%m-%d' )
+    AND date_format( vr.endDate, '%Y-%m-%d' ) = date_format( it2.scanDate, '%Y-%m-%d' )
+    <trim prefix="where" prefixOverrides="and | or">
+      and vr.orgCode=#{orgCode}
+      <if test="startDate != null and startDate.trim() != ''"> and vr.visitDate &gt;= #{startDate}</if>
+      <if test="endDate != null and endDate.trim() != ''"> and vr.visitDate &lt;= #{endDate}</if>
+      <if test="companyName != null and companyName.trim() != ''"> and p2.companyName like concat(concat('%',#{companyName}),'%')</if>
+      <if test="visitorName != null and visitorName.trim() != ''"> and v.realName like concat(concat('%',#{visitorName}),'%')</if>
+    </trim>
+    GROUP BY vr.id
+  </select>
+
+</mapper>

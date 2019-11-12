@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manage.dao.CompanyOperMapping">
+  <resultMap id="BaseResultMap" type="com.manage.model.CompanyOper">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="oper_name" jdbcType="VARCHAR" property="oper_name" />
+    <result column="company_id" jdbcType="BIGINT" property="company_id" />
+    <result column="role_id" jdbcType="BIGINT" property="role_id" />
+    <result column="pwd" jdbcType="VARCHAR" property="pwd" />
+    <result column="sstatus" jdbcType="VARCHAR" property="sstatus" />
+    <result column="login_name" jdbcType="VARCHAR" property="login_name" />
+
+  </resultMap>
+
+  <select id="findByLoginName" resultType="com.manage.model.CompanyOper">
+    select * from t_company_oper
+    where login_name = #{login_name}
+  </select>
+
+  <insert id="addCompanyOper">
+    insert into t_company_oper (oper_name,company_id,role_id,pwd,sstatus,login_name) values
+    ( #{companyOper.oper_name},#{companyOper.company_id},#{companyOper.role_id}, #{companyOper.pwd},#{companyOper.sstatus},#{companyOper.login_name})
+  </insert>
+
+  <delete id="delCompanyOperAll" parameterType="java.util.List">
+    DELETE FROM t_company_oper WHERE company_id in
+    <foreach close=")" collection="ids" item="id" open="(" separator=",">
+      #{id}
+    </foreach>
+  </delete>
+</mapper>

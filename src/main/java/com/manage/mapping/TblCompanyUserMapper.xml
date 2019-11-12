@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.manage.dao.TblCompanyUserMapper" >
+  <resultMap id="BaseResultMap" type="com.manage.model.TblCompanyUser" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="companyId" property="companyid" jdbcType="BIGINT" />
+    <result column="sectionId" property="sectionid" jdbcType="BIGINT" />
+    <result column="userId" property="userid" jdbcType="BIGINT" />
+    <result column="postId" property="postid" jdbcType="BIGINT" />
+    <result column="userName" property="username" jdbcType="VARCHAR" />
+    <result column="createDate" property="createdate" jdbcType="VARCHAR" />
+    <result column="createTime" property="createtime" jdbcType="VARCHAR" />
+    <result column="roleType" property="roletype" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="currentStatus" property="currentstatus" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="VARCHAR" />
+    <result column="secucode" property="secucode" jdbcType="VARCHAR" />
+    <result column="authtype" property="authtype" jdbcType="VARCHAR" />
+    <result column="applyfailAnsaesn" property="applyfailansaesn" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, companyId, sectionId, userId, postId, userName, createDate, createTime, roleType,
+    status, currentStatus, sex, secucode, authtype, applyfailAnsaesn
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.manage.model.TblCompanyUserExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from tbl_company_user
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List" />
+    from tbl_company_user
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from tbl_company_user
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.manage.model.TblCompanyUserExample" >
+    delete from tbl_company_user
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.manage.model.TblCompanyUser" >
+    <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into tbl_company_user (companyId, sectionId, userId,
+    postId, userName, createDate,
+    createTime, roleType, status,
+    currentStatus, sex, secucode,
+    authtype, applyfailAnsaesn)
+    values (#{companyid,jdbcType=BIGINT}, #{sectionid,jdbcType=BIGINT}, #{userid,jdbcType=BIGINT},
+    #{postid,jdbcType=BIGINT}, #{username,jdbcType=VARCHAR}, #{createdate,jdbcType=VARCHAR},
+    #{createtime,jdbcType=VARCHAR}, #{roletype,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR},
+    #{currentstatus,jdbcType=VARCHAR}, #{sex,jdbcType=VARCHAR}, #{secucode,jdbcType=VARCHAR},
+    #{authtype,jdbcType=VARCHAR}, #{applyfailansaesn,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.manage.model.TblCompanyUser" >
+    <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into tbl_company_user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="companyid != null" >
+        companyId,
+      </if>
+      <if test="sectionid != null" >
+        sectionId,
+      </if>
+      <if test="userid != null" >
+        userId,
+      </if>
+      <if test="postid != null" >
+        postId,
+      </if>
+      <if test="username != null" >
+        userName,
+      </if>
+      <if test="createdate != null" >
+        createDate,
+      </if>
+      <if test="createtime != null" >
+        createTime,
+      </if>
+      <if test="roletype != null" >
+        roleType,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="currentstatus != null" >
+        currentStatus,
+      </if>
+      <if test="sex != null" >
+        sex,
+      </if>
+      <if test="secucode != null" >
+        secucode,
+      </if>
+      <if test="authtype != null" >
+        authtype,
+      </if>
+      <if test="applyfailansaesn != null" >
+        applyfailAnsaesn,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="companyid != null" >
+        #{companyid,jdbcType=BIGINT},
+      </if>
+      <if test="sectionid != null" >
+        #{sectionid,jdbcType=BIGINT},
+      </if>
+      <if test="userid != null" >
+        #{userid,jdbcType=BIGINT},
+      </if>
+      <if test="postid != null" >
+        #{postid,jdbcType=BIGINT},
+      </if>
+      <if test="username != null" >
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null" >
+        #{createdate,jdbcType=VARCHAR},
+      </if>
+      <if test="createtime != null" >
+        #{createtime,jdbcType=VARCHAR},
+      </if>
+      <if test="roletype != null" >
+        #{roletype,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="currentstatus != null" >
+        #{currentstatus,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        #{sex,jdbcType=VARCHAR},
+      </if>
+      <if test="secucode != null" >
+        #{secucode,jdbcType=VARCHAR},
+      </if>
+      <if test="authtype != null" >
+        #{authtype,jdbcType=VARCHAR},
+      </if>
+      <if test="applyfailansaesn != null" >
+        #{applyfailansaesn,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.manage.model.TblCompanyUserExample" resultType="java.lang.Integer" >
+    select count(*) from tbl_company_user
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update tbl_company_user
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.companyid != null" >
+        companyId = #{record.companyid,jdbcType=BIGINT},
+      </if>
+      <if test="record.sectionid != null" >
+        sectionId = #{record.sectionid,jdbcType=BIGINT},
+      </if>
+      <if test="record.userid != null" >
+        userId = #{record.userid,jdbcType=BIGINT},
+      </if>
+      <if test="record.postid != null" >
+        postId = #{record.postid,jdbcType=BIGINT},
+      </if>
+      <if test="record.username != null" >
+        userName = #{record.username,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createdate != null" >
+        createDate = #{record.createdate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createtime != null" >
+        createTime = #{record.createtime,jdbcType=VARCHAR},
+      </if>
+      <if test="record.roletype != null" >
+        roleType = #{record.roletype,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.currentstatus != null" >
+        currentStatus = #{record.currentstatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sex != null" >
+        sex = #{record.sex,jdbcType=VARCHAR},
+      </if>
+      <if test="record.secucode != null" >
+        secucode = #{record.secucode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.authtype != null" >
+        authtype = #{record.authtype,jdbcType=VARCHAR},
+      </if>
+      <if test="record.applyfailansaesn != null" >
+        applyfailAnsaesn = #{record.applyfailansaesn,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update tbl_company_user
+    set id = #{record.id,jdbcType=BIGINT},
+    companyId = #{record.companyid,jdbcType=BIGINT},
+    sectionId = #{record.sectionid,jdbcType=BIGINT},
+    userId = #{record.userid,jdbcType=BIGINT},
+    postId = #{record.postid,jdbcType=BIGINT},
+    userName = #{record.username,jdbcType=VARCHAR},
+    createDate = #{record.createdate,jdbcType=VARCHAR},
+    createTime = #{record.createtime,jdbcType=VARCHAR},
+    roleType = #{record.roletype,jdbcType=VARCHAR},
+    status = #{record.status,jdbcType=VARCHAR},
+    currentStatus = #{record.currentstatus,jdbcType=VARCHAR},
+    sex = #{record.sex,jdbcType=VARCHAR},
+    secucode = #{record.secucode,jdbcType=VARCHAR},
+    authtype = #{record.authtype,jdbcType=VARCHAR},
+    applyfailAnsaesn = #{record.applyfailansaesn,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.manage.model.TblCompanyUser" >
+    update tbl_company_user
+    <set >
+      <if test="companyid != null" >
+        companyId = #{companyid,jdbcType=BIGINT},
+      </if>
+      <if test="sectionid != null" >
+        sectionId = #{sectionid,jdbcType=BIGINT},
+      </if>
+      <if test="userid != null" >
+        userId = #{userid,jdbcType=BIGINT},
+      </if>
+      <if test="postid != null" >
+        postId = #{postid,jdbcType=BIGINT},
+      </if>
+      <if test="username != null" >
+        userName = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null" >
+        createDate = #{createdate,jdbcType=VARCHAR},
+      </if>
+      <if test="createtime != null" >
+        createTime = #{createtime,jdbcType=VARCHAR},
+      </if>
+      <if test="roletype != null" >
+        roleType = #{roletype,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="currentstatus != null" >
+        currentStatus = #{currentstatus,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        sex = #{sex,jdbcType=VARCHAR},
+      </if>
+      <if test="secucode != null" >
+        secucode = #{secucode,jdbcType=VARCHAR},
+      </if>
+      <if test="authtype != null" >
+        authtype = #{authtype,jdbcType=VARCHAR},
+      </if>
+      <if test="applyfailansaesn != null" >
+        applyfailAnsaesn = #{applyfailansaesn,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.manage.model.TblCompanyUser" >
+    update tbl_company_user
+    set companyId = #{companyid,jdbcType=BIGINT},
+      sectionId = #{sectionid,jdbcType=BIGINT},
+      userId = #{userid,jdbcType=BIGINT},
+      postId = #{postid,jdbcType=BIGINT},
+      userName = #{username,jdbcType=VARCHAR},
+      createDate = #{createdate,jdbcType=VARCHAR},
+      createTime = #{createtime,jdbcType=VARCHAR},
+      roleType = #{roletype,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
+      currentStatus = #{currentstatus,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=VARCHAR},
+      secucode = #{secucode,jdbcType=VARCHAR},
+      authtype = #{authtype,jdbcType=VARCHAR},
+      applyfailAnsaesn = #{applyfailansaesn,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="findByPage" resultType="com.manage.model.TblCompanyUser">
+        SELECT
+        t.id,
+        t.companyId,
+        t.userId,
+        t.userName,
+        t.createDate,
+        t.`status`,
+        c.companyName,
+        b.phone
+    FROM
+        tbl_company_user t
+         JOIN tbl_company c ON t.companyId = c.id JOIN tbl_user b on t.userId=b.id
+    <trim prefix="where" prefixOverrides="and | or">
+      <if test="createDate != null and createDate.trim() != ''"> and t.createDate &gt;= #{createDate}</if>
+      <if test="userName != null and userName.trim() != ''"> and t.userName like concat(concat('%',#{userName}),'%')</if>
+      <if test="status != null and status.trim() != ''"> and t.status = #{status}</if>
+      <if test="companyName != null and companyName.trim() != ''"> and c.companyName = #{companyName}</if>
+       and c.orgId=#{orgId}
+    </trim>
+  </select>
+
+  <update id="updateCheckStatusByPersonIds" parameterType="java.util.List">
+    <foreach collection="list" item="bean" index="index" open="" close="" separator=";">
+      update tbl_company_user
+      <set>
+        status=#{bean.status},
+        applyfailAnsaesn=#{bean.applyfailansaesn}
+      </set>
+      <where>
+        id=#{bean.id}
+      </where>
+    </foreach>
+  </update>
+</mapper>

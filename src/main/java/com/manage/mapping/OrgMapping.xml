@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manage.dao.OrgMapping">
+  <resultMap id="BaseResultMap" type="com.manage.model.Org">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="org_code" jdbcType="VARCHAR" property="org_code" />
+    <result column="org_name" jdbcType="VARCHAR" property="org_name" />
+    <result column="sid" jdbcType="BIGINT" property="sid" />
+    <result column="istop" jdbcType="VARCHAR" property="istop" />
+    <result column="org_icon" jdbcType="VARCHAR" property="org_icon" />
+    <result column="relation_no" jdbcType="VARCHAR" property="relation_no" />
+    <result column="sstatus" jdbcType="VARCHAR" property="sstatus" />
+    <result column="orgType" jdbcType="VARCHAR" property="orgType" />
+    <result column="realName" jdbcType="VARCHAR" property="realName" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="addr" jdbcType="VARCHAR" property="addr" />
+    <result column="createDate" jdbcType="VARCHAR" property="createDate" />
+    <result column="province" jdbcType="VARCHAR" property="province" />
+    <result column="city" jdbcType="VARCHAR" property="city" />
+    <result column="area" jdbcType="VARCHAR" property="area" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    id, org_code, org_name, sid, istop, org_icon, relation_no, sstatus, orgType, realName, 
+    phone, addr, createDate, province, city, area
+  </sql>
+
+  <sql id="PageLeft">
+    o.*,o1.org_name s_name,item.item_text orgTypeName,
+    item1.item_text sstatusName
+  </sql>
+
+  <select id="findByPageLeft" resultType="com.manage.model.Org">
+    select
+    <include refid="PageLeft" />
+    from t_org o
+    left join t_org o1 on o.sid=o1.id
+    left join t_dict_item item on o.orgType=item.item_code and item.dict_code='orgType'
+    left join t_dict_item item1 on o.sstatus=item1.item_code and item1.dict_code='orgSstatus'
+    <trim prefix="where" prefixOverrides="and | or">
+       and o.RELATION_NO like concat((#{org.relation_no}),'%')
+      <if test="org.org_name != null and org.org_name.trim() != ''"> and o.org_name like concat(concat('%',#{org.org_name}),'%')</if>
+      <if test="org.orgType != null and org.orgType.trim() != ''"> and o.orgType=#{org.orgType}</if>
+      <if test="org.realName != null and org.realName.trim() !='' "> and o.realName like concat(concat('%',#{org.realName}),'%')</if>
+      <if test="org.phone != null and org.phone.trim() !='' "> and o.phone=#{org.phone}</if>
+      <if test="org.superiorOrgName != null and org.superiorOrgName.trim() !='' "> and o1.org_name like concat(concat('%',#{org.superiorOrgName}),'%')</if>
+    </trim>
+  </select>
+
+  <resultMap id="ResultOfInteger" type="java.lang.Integer">
+    <result column="numOrg" property="numOrg" jdbcType="INTEGER" />
+  </resultMap>
+
+  <!--统计其下机构数-->
+  <select id="countOrgByOrg" resultType="Long">
+    select ifnull(count(id),0) numOrg from t_org
+    <trim prefix="where" prefixOverrides="and | or">
+      AND relation_no like concat((#{relationNo}),'%') and orgType='agent' AND relation_no!=#{relationNo}
+      <if test="createDate != null and createDate.trim() != '' "> and createDate=#{createDate}</if>
+    </trim>
+
+  </select>
+
+  <select id="findByIdUnion" parameterType="Long" resultType="com.manage.model.Org">
+    select o.*,o1.org_name s_name,item.item_text orgTypeName
+      from t_org o
+	 left join t_org o1 on o.sid=o1.id
+	 left join t_dict_item item on o.orgType=item.item_code and item.dict_code='orgType'
+	 where 1=1 and o.id=#{orgId}
+  </select>
+  
+  <select id="findByParam" resultType="com.manage.model.Org">
+    select * from t_org
+    <trim prefix="where" prefixOverrides="and | or">
+     <if test="paramText != null and paramText.trim() != ''and paramName == 'org_code'.toString()"> AND org_code = #{paramText}</if>
+      <if test="paramText != null and paramText.trim() !=''and paramName == 'org_name'.toString() "> AND org_name = #{paramText}</if>
+      <if test="paramText != null and paramText.trim() !='' and paramName == 'idNO'.toString()"> AND idNO = #{paramText}</if>
+    </trim>
+  </select>
+
+  <insert id="insertSelectiveGetKey" parameterType="com.manage.model.Org">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_org
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="org_code != null">
+        org_code,
+      </if>
+      <if test="org_name != null">
+        org_name,
+      </if>
+      <if test="sid != null">
+        sid,
+      </if>
+      <if test="istop != null">
+        istop,
+      </if>
+      <if test="org_icon != null">
+        org_icon,
+      </if>
+      <if test="relation_no != null">
+        relation_no,
+      </if>
+      <if test="sstatus != null">
+        sstatus,
+      </if>
+      <if test="orgType != null">
+        orgType,
+      </if>
+      <if test="realName != null">
+        realName,
+      </if>
+      <if test="phone != null">
+        phone,
+      </if>
+      <if test="addr != null">
+        addr,
+      </if>
+      <if test="createDate != null">
+        createDate,
+      </if>
+      <if test="province != null">
+        province,
+      </if>
+
+        <if test="city != null">
+          city,
+        </if>
+        <if test="area != null">
+          area,
+        </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="org_code != null">
+        #{org_code,jdbcType=VARCHAR},
+      </if>
+      <if test="org_name != null">
+        #{org_name,jdbcType=VARCHAR},
+      </if>
+      <if test="sid != null">
+        #{sid,jdbcType=BIGINT},
+      </if>
+      <if test="istop != null">
+        #{istop,jdbcType=VARCHAR},
+      </if>
+      <if test="org_icon != null">
+        #{org_icon,jdbcType=VARCHAR},
+      </if>
+      <if test="relation_no != null">
+        #{relation_no,jdbcType=VARCHAR},
+      </if>
+      <if test="sstatus != null">
+        #{sstatus,jdbcType=VARCHAR},
+      </if>
+      <if test="orgType != null">
+        #{orgType,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null">
+        #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="addr != null">
+        #{addr,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=VARCHAR},
+      </if>
+      <if test="province != null">
+        #{province,jdbcType=VARCHAR},
+      </if>
+        <if test="city != null">
+            #{city,jdbcType=VARCHAR},
+        </if>
+        <if test="area != null">
+            #{area,jdbcType=VARCHAR},
+        </if>
+    </trim>
+  </insert>
+
+  <select id="findSubordinateOrg" resultType="com.manage.model.Org" parameterType="Long">
+	     select t.*,t1.org_name parentName from t_org t
+	     left join t_org t1 on t.sid=t1.id
+	     where t.sid=#{id}
+
+  </select>
+
+  <!--统计操作员下的所发展的机构 LZ-->
+  <select id="findByOperId" resultType="com.manage.model.Org" parameterType="Long">
+      select *
+      from t_org
+    <trim prefix="where" prefixOverrides="and | or">
+      <if test="operId != null"> AND operId = #{operId}</if>
+      <if test="orgName != null and orgName.trim() !=''"> and org_name like concat(concat('%',#{orgName}),'%')</if>
+    </trim>
+  </select>
+
+  <select id="findByRelationNo" resultType="com.manage.model.Org" parameterType="String">
+    select *
+    from t_org
+    WHERE relation_no =#{relation_no}
+  </select>
+
+  <select id="findCardNo" resultType="com.manage.model.Org" parameterType="Long">
+    select *
+    from t_org
+    where id=#{orgId}
+  </select>
+
+  <select id="findOrgSid" resultType="com.manage.model.Org">
+  select * from t_org where sid=#{sid}
+  </select>
+  <delete id="batchDelete" parameterType="java.util.List">
+    delete from t_org where id in
+    <foreach collection="ids" item="id" separator="," open="(" close=")">
+      #{id}
+    </foreach>
+  </delete>
+
+  <select id="findByPhone" resultType="com.manage.model.Org" parameterType="String">
+    select *
+    from t_org
+    WHERE phone =#{phone}
+  </select>
+
+  <update id="updateStatus">
+    UPDATE t_org set sstatus=#{org.sstatus} WHERE id=#{org.id}
+  </update>
+
+  <select id="getAllOrg" resultType="com.manage.model.Org">
+    select
+    <include refid="PageLeft" />
+    from t_org o
+    left join t_org o1 on o.sid=o1.id
+    left join t_dict_item item on o.orgType=item.item_code and item.dict_code='orgType'
+    left join t_dict_item item1 on o.sstatus=item1.item_code and item1.dict_code='orgSstatus'
+    <trim prefix="where" prefixOverrides="and | or">
+      and o.RELATION_NO like concat((#{relation_no}),'%') and o.orgType='floor'
+    </trim>
+  </select>
+
+</mapper>

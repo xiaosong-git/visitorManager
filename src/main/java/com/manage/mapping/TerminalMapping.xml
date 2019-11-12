@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manage.dao.TerminalMapping">
+  <resultMap id="BaseResultMap" type="com.manage.model.Terminal">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="terminalNo" jdbcType="VARCHAR" property="terminalNo" />
+    <result column="terminalCstatus" jdbcType="VARCHAR" property="terminalCstatus" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="orgId" jdbcType="VARCHAR" property="orgId" />
+  </resultMap>
+
+  <select id="findByPage" resultType="com.manage.model.Terminal">
+    select terminal.*,item.item_text terminalCstatusName,org.org_name org_name
+    from tbl_terminal terminal
+    left join t_org org on terminal.orgId = org.id
+    left join t_dict_item item on item.dict_code='terminalCstatus' and item.item_code=terminal.terminalCstatus
+    <trim prefix="where" prefixOverrides="and | or">
+      and org.RELATION_NO like concat((#{relation_no}),'%')
+      <if test="terminalNo != null and terminalNo.trim() != ''">  and terminal.terminalNo = #{terminalNo}</if>
+      <if test="orgName != null and orgName.trim() != ''">  and org.org_name like concat(concat('%',#{orgName}),'%')</if>
+    </trim>
+  </select>
+
+  <insert id="add">
+    insert into tbl_terminal (terminalNo,terminalCstatus,remark,orgId)
+    values (#{terminal.terminalNo},#{terminal.terminalCstatus},#{terminal.remark},#{terminal.orgId})
+  </insert>
+
+  <update id="update">
+    UPDATE tbl_terminal set terminalNo=#{terminal.terminalNo},terminalCstatus=#{terminal.terminalCstatus},remark=#{terminal.remark} WHERE id=#{terminal.id}
+  </update>
+
+  <delete id="del" parameterType="java.util.List">
+    DELETE FROM tbl_terminal WHERE id in
+    <foreach close=")" collection="ids" item="id" open="(" separator=",">
+      #{id}
+    </foreach>
+  </delete>
+
+  <update id="updateStatus">
+    UPDATE tbl_terminal set terminalCstatus=#{terminal.terminalCstatus} WHERE id=#{terminal.id}
+  </update>
+</mapper>

@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manage.dao.OperMapping">
+  <resultMap id="BaseResultMap" type="com.manage.model.Oper">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="oper_code" jdbcType="VARCHAR" property="oper_code" />
+    <result column="oper_name" jdbcType="VARCHAR" property="oper_name" />
+    <result column="org_id" jdbcType="BIGINT" property="org_id" />
+    <result column="role_id" jdbcType="BIGINT" property="role_id" />
+    <result column="org_relation_no" jdbcType="VARCHAR" property="org_relation_no" />
+    <result column="pwd" jdbcType="VARCHAR" property="pwd" />
+    <result column="sstatus" jdbcType="VARCHAR" property="sstatus" />
+    <result column="login_name" jdbcType="VARCHAR" property="login_name" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    id, oper_code, oper_name, org_id, role_id, org_relation_no, pwd, sstatus, login_name
+  </sql>
+
+  <select id="selectAll" resultType="com.manage.model.Oper">
+    select
+    <include refid="Base_Column_List" />
+    from t_oper
+  </select>
+
+  <select id="findByPage" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_oper
+  </select>
+
+  <sql id="leftOrg">
+    r.id, r.oper_code, r.oper_name, r.org_id, r.role_id, r.org_relation_no, r.pwd, r.sstatus, r.login_name,
+    g.org_name,item.item_text statusName,role.role_name roleName
+  </sql>
+
+  <select id="findByPageLeftOrg" resultType="com.manage.model.Oper">
+    select
+    <include refid="leftOrg" />
+    from t_oper r
+    left join t_org g on r.org_id=g.id
+    left join t_role role on r.role_id=role.id
+    left join t_dict_item item on r.sstatus=item.item_code and item.dict_code='cstatus'
+    <trim prefix="where" prefixOverrides="and | or">
+      r.sstatus='normal' and r.org_id = #{org_id}
+      <if test="oper_name != null and oper_name.trim() != ''"> AND r.oper_name like concat(#{oper_name},'%') </if>
+    </trim>
+  </select>
+
+  <select id="getOrgPageOper" resultType="com.manage.model.Oper">
+    select
+    <include refid="leftOrg" />
+    from t_oper r
+    left join t_org g on r.org_id=g.id
+    left join t_role role on r.role_id=role.id
+    left join t_dict_item item on r.sstatus=item.item_code and item.dict_code='cstatus'
+    <trim prefix="where" prefixOverrides="and | or">
+      r.sstatus='0' and  r.org_relation_no  like concat(#{relationNo},'%')
+      <if test="orgType != null and orgType.trim() !='' "> and g.orgType = #{orgType}</if>
+        <if test="orgName != null and orgName.trim() != ''"> and g.org_name like concat('%',concat(#{orgName},'%'))  </if>
+      <if test="oper_name != null and oper_name.trim() != ''"> AND r.oper_name like concat('%',concat(#{oper_name},'%'))  </if>
+    </trim>
+    ORDER BY r.id
+  </select>
+
+  <select id="selectByLoginName" parameterType="java.lang.String" resultType="com.manage.model.Oper">
+    select
+    <include refid="Base_Column_List" />
+    from t_oper
+    where login_name = #{loginName,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByOrgRelationNo" parameterType="java.lang.String" resultType="com.manage.model.Oper">
+    select
+    <include refid="Base_Column_List" />
+    from t_oper
+    where org_relation_no like #{orgRelationNo,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="batchDelete" parameterType="java.util.List">
+    delete from t_oper where id in
+    <foreach collection="ids" item="id" separator="," open="(" close=")">
+      #{id}
+    </foreach>
+  </delete>
+
+  <select id="findSalesmanByOrgId" parameterType="java.lang.Long" resultType="com.manage.model.Oper">
+    select
+    <include refid="Base_Column_List" />
+    from t_oper
+    where org_id=#{orgId}
+  </select>
+
+  <!--修改操作员密码 LZ-->
+  <update id="updateOperPwd" parameterType="com.manage.model.Oper">
+    update t_oper set pwd = #{pwd} where id = #{id}
+  </update>
+
+  <!--通过Id查询 LZ-->
+  <select id="findById" parameterType="java.lang.Long" resultType="com.manage.model.Oper">
+    select
+    <include refid="Base_Column_List" />
+    from t_oper
+    where id = #{id}
+  </select>
+<select id="findByCode" resultType="com.manage.model.Oper" >
+ select o.id,o.oper_code,o.oper_name,o.login_name,o.org_relation_no,o.sstatus,o.role_id,o.org_id,
+     org.org_name,role.role_name,role.role_relation_no
+     from t_oper o
+     left join t_org org on o.org_id=org.id
+     left join t_role role on o.role_id=role.id
+     where o.oper_code=#{operCode}
+</select>
+
+  <update id="updateById">
+    update t_oper
+    <trim prefix="set" suffixOverrides=",">
+    <if test="oper.oper_code != null and oper.oper_code.trim() != ''"> oper_code=#{oper.oper_code},</if>
+    <if test="oper.login_name != null and oper.login_name.trim() != ''"> login_name=#{oper.login_name},</if>
+    <if test="oper.role_id != null"> role_id=#{oper.role_id},</if>
+    <if test="oper.oper_name != null and oper.oper_name.trim() != ''"> oper_name=#{oper.oper_name},</if>
+    <if test="oper.pwd != null and oper.pwd.trim() != ''"> pwd =#{oper.pwd},</if>
+</trim>
+     where id=#{oper.id}
+
+  </update>
+  <select id="findByOrgIdAndRoleId" resultType="com.manage.model.Oper" >
+    select o.*,org.org_name,role.role_name roleName,item.item_text status_text,item1.item_text referrer
+    from t_oper o
+     left join t_org org on o.org_id=org.id
+     left join t_role role on o.role_id=role.id
+     left join t_dict_item item on o.sstatus=item.item_code and item.dict_code='cstatus'
+     where o.org_id=#{orgId} and role.role_relation_no like '${roleRelation}%' and (o.role_id='12' or o.role_id='15')
+  </select>
+
+    <insert id="save">
+  insert into t_oper (oper_code,oper_name,login_name,org_id,role_id,org_relation_no,pwd,sstatus) values
+   ( #{oper.oper_code},#{oper.oper_name},#{oper.login_name}, #{oper.org_id},#{oper.role_id},#{oper.org_relation_no}, #{oper.pwd},#{oper.sstatus})
+
+  </insert>
+
+    <select id="findByOrgId"  resultType="com.manage.model.Oper">
+ select o.*,org.org_name,role.role_name,item.item_text status_text
+ from t_oper o
+     left join t_org org on o.org_id=org.id
+     left join t_role role on o.role_id=role.id
+     left join t_dict_item item on o.sstatus=item.item_code and item.dict_code='cstatus'
+     where o.org_id=#{orgId}
+  </select>
+
+
+  <select id="findLoginNameId"  resultType="com.manage.model.Oper">
+    select * from t_oper
+    where login_name =#{loginName}
+  </select>
+
+  <select id="agentOperList" resultType="com.manage.model.Oper">
+     select o.id,o.oper_code,o.oper_name,o.login_name,o.org_relation_no,o.sstatus,o.role_id,o.org_id,
+     org.org_name,role.role_name roleName,role.role_relation_no,
+     item.item_text status_text
+     from t_oper o
+     left join t_org org on o.org_id=org.id
+     left join t_role role on o.role_id=role.id
+     left join t_dict_item item on o.sstatus=item.item_code and item.dict_code='cstatus'
+    <trim prefix="where" prefixOverrides="and | or">
+       o.sstatus='normal'
+      <if test="orgType != null and orgType.trim() !='' and orgType=='org'  "> and (org.orgType = 'agent' OR org.orgType = 'org') </if>
+      <if test="orgType != null and orgType.trim() !='' and orgType=='agent'  "> and org.orgType = #{orgType}</if>
+      <if test="orgId != null and orgId.trim() !='' and orgType=='agent'"> AND org.id = #{orgId}</if>
+      <if test="roleRelation != null and roleRelation.trim() != ''"> and role.role_relation_no like concat(#{roleRelation},'%')  </if>
+      <if test="operRelationNo != null and operRelationNo.trim() != ''">  and o.org_relation_no like concat(#{operRelationNo},'%')  </if>
+      <if test="orgName != null and orgName.trim() != ''"> and org.org_name like concat('%',concat(#{orgName},'%'))  </if>
+      <if test="operName != null and operName.trim() != ''"> and o.oper_name like concat('%',concat(#{operName},'%'))  </if>
+    </trim>
+  </select>
+
+</mapper>

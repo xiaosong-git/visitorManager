@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manage.dao.CompanyMapping">
+  <resultMap id="BaseResultMap" type="com.manage.model.Company">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="companyCode" jdbcType="VARCHAR" property="companyCode" />
+    <result column="companyName" jdbcType="VARCHAR" property="companyName" />
+    <result column="createDate" jdbcType="VARCHAR" property="createDate" />
+    <result column="createTime" jdbcType="VARCHAR" property="createTime" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="applyType" jdbcType="VARCHAR" property="applyType" />
+    <result column="corporationID" jdbcType="VARCHAR" property="corporationID" />
+    <result column="licenceNo" jdbcType="VARCHAR" property="licenceNo" />
+    <result column="addr" jdbcType="VARCHAR" property="addr" />
+    <result column="orgId" jdbcType="BIGINT" property="orgId" />
+    <result column="isyaoyue" property="isyaoyue" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <select id="findByPage" resultType="com.manage.model.Company">
+    select company.*,item.item_text applyTypeName,o.org_name org_name,oper.login_name
+    from tbl_company company
+    LEFT JOIN t_company_oper oper
+    ON company.id=oper.company_id
+    left join t_org o on company.orgId = o.id
+    left join t_dict_item item on item.dict_code='applyType' and item.item_code=company.applyType
+    <trim prefix="where" prefixOverrides="and | or">
+      and o.RELATION_NO like concat((#{relation_no}),'%')
+      <if test="companyName != null and companyName.trim() != ''"> and company.companyName like concat(concat('%',#{companyName}),'%')</if>
+      <if test="name != null and name.trim() != ''"> AND company.name like concat(concat('%',#{name}),'%')</if>
+    </trim>
+  </select>
+  <!--<insert id="add">
+    insert into tbl_company (companyCode,companyName,createDate,createTime,phone,name,applyType,corporationID,licenceNo,addr,orgId)
+    values (#{company.companyCode},#{company.companyName},#{company.createDate},#{company.createTime},#{company.phone},#{company.name},#{company.applyType},#{company.corporationID},#{company.licenceNo},#{company.addr},#{company.orgId})
+  </insert>-->
+  <insert id="add" parameterType="com.manage.model.Company">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into tbl_company (companyCode,companyName,createDate,createTime,phone,name,applyType,corporationID,licenceNo,addr,orgId,companyFloor,isyaoyue)
+    values (#{company.companyCode},#{company.companyName},#{company.createDate},#{company.createTime},#{company.phone},#{company.name},#{company.applyType},#{company.corporationID},#{company.licenceNo},#{company.addr},#{company.orgId},#{company.companyfloor},#{company.isyaoyue})
+  </insert>
+
+  <update id="update">
+    UPDATE tbl_company set companyCode=#{company.companyCode},companyName=#{company.companyName},phone=#{company.phone},name=#{company.name},applyType=#{company.applyType},corporationID=#{company.corporationID},licenceNo=#{company.licenceNo},addr=#{company.addr},companyFloor=#{company.companyfloor},isyaoyue=#{company.isyaoyue} WHERE id=#{company.id}
+  </update>
+
+  <delete id="del" parameterType="java.util.List">
+    DELETE FROM tbl_company WHERE id in
+    <foreach close=")" collection="ids" item="id" open="(" separator=",">
+      #{id}
+    </foreach>
+  </delete>
+
+  <select id="findByParam" resultType="com.manage.model.Company">
+    select * from tbl_company
+    <trim prefix="where" prefixOverrides="and | or">
+      <if test="paramText != null and paramText.trim() != ''and paramName == 'companyCode'.toString()"> AND companyCode = #{paramText}</if>
+      <if test="paramText != null and paramText.trim() !=''and paramName == 'companyName'.toString() "> AND companyName = #{paramText}</if>
+    </trim>
+  </select>
+
+  <select id="findByCompanyCode" resultType="com.manage.model.Company">
+    select * from tbl_company
+    where companyCode = #{companyCode}
+  </select>
+
+</mapper>

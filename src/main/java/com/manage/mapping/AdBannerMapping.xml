@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manage.dao.AdBannerMapping">
+  <resultMap id="BaseResultMap" type="com.manage.model.AdBanner">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="imgUrl" jdbcType="VARCHAR" property="imgUrl" />
+    <result column="hrefUrl" jdbcType="VARCHAR" property="hrefUrl" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="createTime" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="orders" jdbcType="INTEGER" property="orders" />
+  </resultMap>
+  <select id="findByPager" resultType="com.manage.model.AdBanner">
+    select a.id,a.title,a.imgUrl,a.hrefUrl,a.status,a.createTime,a.orders,i.item_text statusName
+    from tbl_ad_banner a
+    left join t_dict_item i
+    on i.dict_code='adBannerStatus' and a.status=i.item_code
+    <trim prefix="where" prefixOverrides="and | or">
+      <if test="title != null and title.trim() != ''"> and a.title like CONCAT('%', #{title}, '%')</if>
+      <if test="bDate != null and bDate.trim() != ''"> and a.createTime&gt;=#{bDate}</if>
+      <if test="eDate != null and eDate.trim() != ''"> and a.createTime&lt;=#{eDate}</if>
+    </trim>
+  </select>
+
+  <insert id="addAdBanner">
+    insert into tbl_ad_banner (title,imgUrl,hrefUrl,status,createTime,orders)  values (#{adBanner.title},#{adBanner.imgUrl},#{adBanner.hrefUrl},#{adBanner.status},#{adBanner.createTime},#{adBanner.orders})
+  </insert>
+
+  <update id="updateAdBanner">
+    UPDATE tbl_ad_banner set title=#{adBanner.title},imgUrl=#{adBanner.imgUrl},hrefUrl=#{adBanner.hrefUrl},status=#{adBanner.status},createTime=#{adBanner.createTime},orders=#{adBanner.orders} WHERE id=#{adBanner.id}
+  </update>
+
+  <delete id="deleteAdBanner" parameterType="java.util.List">
+    DELETE FROM tbl_ad_banner WHERE id in
+    <foreach collection="ids" item="id" separator="," open="(" close=")">
+      #{id}
+    </foreach>
+  </delete>
+
+  <update id="updateStatus">
+    UPDATE tbl_ad_banner set status=#{status} WHERE id=#{id}
+  </update>
+</mapper>
